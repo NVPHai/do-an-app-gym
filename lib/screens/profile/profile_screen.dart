@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'workout_schedule_screen.dart';
 import 'health_calculator_screen.dart';
 import 'reminder_screen.dart';
+import '../../services/auth_service.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -90,6 +91,17 @@ class ProfileScreen extends StatelessWidget {
                             builder: (_) => const ReminderScreen(),
                           ),
                         );
+                      },
+                    ),
+
+                    _buildLuxuryCard(
+                      context,
+                      title: "Đăng xuất",
+                      subtitle: "Rời khỏi tài khoản",
+                      icon: Icons.logout_rounded,
+                      onTap: () async {
+                        final authService = AuthService();
+                        await authService.signOut();
                       },
                     ),
                   ],

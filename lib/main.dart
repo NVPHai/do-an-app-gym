@@ -1,9 +1,14 @@
-import 'package:fitness_pro_max_luxury/screens/onboarding/onboarding_screen.dart';
+import 'firebase_options.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:fitness_pro_max_luxury/screens/onboarding/onboarding_screen.dart';
 import 'package:fitness_pro_max_luxury/screens/profile/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await NotificationService.init(); 
   runApp(const FitnessApp());
 }
