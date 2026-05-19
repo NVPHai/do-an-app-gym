@@ -1,5 +1,5 @@
   import 'package:flutter/material.dart';
-  import 'package:fitness_pro_max_luxury/screens/home_screen.dart'; 
+  import 'package:fitness_pro_max_luxury/screens/auth/auth_gate.dart'; 
   import 'dart:ui';
 
 
@@ -164,7 +164,7 @@
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const MainScreen(),
+                          builder: (_) => const AuthGate(),
                         ),
                       );
                     } else {
@@ -205,7 +205,7 @@
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const MainScreen(),
+                        builder: (_) => const AuthGate(),
                       ),
                     );
                   },

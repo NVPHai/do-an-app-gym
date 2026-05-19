@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1098198133733",
+    "project_id": "do-an-app-gym",
+    "storage_bucket": "do-an-app-gym.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1098198133733:android:5d7841a83ec80328badd0c",
+        "android_client_info": {
+          "package_name": "com.example.fitness_pro_max_luxury"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUDbee1dUvm4AjOhQVI4XStLcdqd01ZlU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
