@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/auth_service.dart';
+import '../../services/firestore_service.dart';
+import '../../models/user_model.dart';
 import '../../widgets/luxury_text_field.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -10,10 +12,12 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _authService = AuthService();
+  final _firestoreService = FirestoreService();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
 
@@ -35,10 +39,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
 
     try {
-      await _authService.registerWithEmailPassword(
+      final userCredential = await _authService.registerWithEmailPassword(
         _emailController.text,
         _passwordController.text,
       );
+      
+      if (userCredential != null && userCredential.user != null) {
+        UserModel newUser = UserModel(
+          uid: userCredential.user!.uid,
+          email: _emailController.text.trim(),
+          name: _nameController.text.trim(),
+        );
+        await _firestoreService.createUser(newUser);
+      }
+
       if (!mounted) return;
       Navigator.pop(context); // Go back to login/home
     } catch (e) {
@@ -60,6 +74,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -113,7 +128,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         "Gia nhập cộng đồng Fitness",
                         style: TextStyle(color: Colors.white54, fontSize: 16),
                       ),
-                      const SizedBox(height: 50),
+                      const SizedBox(height: 40),
+
+                      LuxuryTextField(
+                        hintText: "Họ và tên",
+                        icon: Icons.person_rounded,
+                        controller: _nameController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) return 'Vui lòng nhập họ và tên';
+                          return null;
+                        },
+                      ),
 
                       LuxuryTextField(
                         hintText: "Email",

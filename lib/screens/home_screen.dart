@@ -1,6 +1,10 @@
+import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import '../models/user_model.dart';
+import '../services/auth_service.dart';
+import '../services/firestore_service.dart';
 import 'cardio/cardio_screen.dart';
 import 'profile/profile_screen.dart';
 import 'gym/gym_screen.dart';
@@ -23,6 +27,10 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = AuthService();
+    final firestoreService = FirestoreService();
+    final currentUser = authService.currentUser;
+
     return Scaffold(
       backgroundColor: Colors.black,
 
@@ -50,45 +58,64 @@ class _MainScreenState extends State<MainScreen> {
               children: [
 
                 ///  APPBAR
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: Row(
-                    children: [
-
-                      /// AVATAR
-                      const CircleAvatar(
-                        radius: 22,
-                        backgroundImage: AssetImage('assets/images/avatar.png'),
-                      ),
-
-                      const SizedBox(width: 12),
-
-                      /// TEXT
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            "Welcome back",
-                            style: TextStyle(
-                              color: Colors.white54,
-                              fontSize: 12,
-                            ),
+                StreamBuilder<UserModel?>(
+                  stream: currentUser != null ? firestoreService.getUserStream(currentUser.uid) : const Stream.empty(),
+                  builder: (context, snapshot) {
+                    final user = snapshot.data;
+                    String name = user?.name ?? 'Người dùng';
+                    if (name.isEmpty) name = 'Người dùng';
+                    
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      child: Row(
+                        children: [
+                          /// AVATAR
+                          FutureBuilder<String>(
+                            future: firestoreService.getLocalImagePath(user?.photoUrl ?? ''),
+                            builder: (context, avatarSnapshot) {
+                              String avatarPath = avatarSnapshot.data ?? '';
+                              return CircleAvatar(
+                                radius: 22,
+                                backgroundColor: Colors.white10,
+                                backgroundImage: avatarPath.isNotEmpty
+                                    ? FileImage(File(avatarPath))
+                                    : null,
+                                child: avatarPath.isEmpty
+                                    ? const Icon(Icons.person, color: Colors.white54, size: 20)
+                                    : null,
+                              );
+                            }
                           ),
-                          Text(
-                            "Phương Hải",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                            ),
+
+                          const SizedBox(width: 12),
+
+                          /// TEXT
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Welcome back",
+                                style: TextStyle(
+                                  color: Colors.white54,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              Text(
+                                name,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
+
+                          const Spacer(),
                         ],
                       ),
-
-                      const Spacer(),
-
-                    ],
-                  ),
+                    );
+                  }
                 ),
                 ///  SCREEN CONTENT
                 Expanded(
