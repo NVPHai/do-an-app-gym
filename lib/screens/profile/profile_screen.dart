@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'workout_schedule_screen.dart';
@@ -9,6 +8,10 @@ import '../../services/auth_service.dart';
 import '../../services/firestore_service.dart';
 import '../../models/user_model.dart';
 import 'edit_profile_screen.dart';
+import '../../widgets/action_luxury_card.dart';
+
+import '../../widgets/core/luxury_button.dart';
+import '../../widgets/core/luxury_loading_indicator.dart';
 
 
 class ProfileScreen extends StatefulWidget {
@@ -56,7 +59,7 @@ void initState() {
           stream: _userStream,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator(color: Color(0xFFD4AF37)));
+              return const LuxuryLoadingIndicator();
             }
 
             // Provide default fallback user if not found
@@ -103,20 +106,16 @@ void initState() {
                       const SizedBox(height: 20),
 
                       // Edit Button
-                      ElevatedButton.icon(
+                      LuxuryButton(
+                        icon: Icons.edit,
+                        text: "Chỉnh sửa hồ sơ",
+                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                         onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (_) => EditProfileScreen(user: user)),
                           );
                         },
-                        icon: const Icon(Icons.edit, color: Colors.black, size: 18),
-                        label: const Text("Chỉnh sửa hồ sơ", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFD4AF37),
-                          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        ),
                       ),
                       const SizedBox(height: 30),
                     ],
@@ -134,8 +133,7 @@ void initState() {
                       ),
                       const SizedBox(height: 15),
 
-                      _buildLuxuryCard(
-                        context,
+                      ActionLuxuryCard(
                         title: "Lên lịch tập",
                         subtitle: "Sắp xếp lộ trình tuần",
                         icon: Icons.calendar_month,
@@ -144,8 +142,7 @@ void initState() {
                         },
                       ),
 
-                      _buildLuxuryCard(
-                        context,
+                      ActionLuxuryCard(
                         title: "Health & Calories",
                         subtitle: "Tính BMI & calo",
                         icon: Icons.analytics,
@@ -154,8 +151,7 @@ void initState() {
                         },
                       ),
 
-                      _buildLuxuryCard(
-                        context,
+                      ActionLuxuryCard(
                         title: "Reminder",
                         subtitle: "Nhắc bạn đi tập",
                         icon: Icons.notifications_active,
@@ -164,8 +160,7 @@ void initState() {
                         },
                       ),
 
-                      _buildLuxuryCard(
-                        context,
+                      ActionLuxuryCard(
                         title: "Đăng xuất",
                         subtitle: "Rời khỏi tài khoản",
                         icon: Icons.logout_rounded,
@@ -195,77 +190,7 @@ void initState() {
     );
   }
 
-  ///  CARD 
-  Widget _buildLuxuryCard(
-    BuildContext context, {
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 20),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.5),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Color(0xFFD4AF37),
-                    ),
-                    child: Icon(icon, color: Colors.black),
-                  ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          subtitle,
-                          style: const TextStyle(color: Colors.white70, fontSize: 13),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.white54,
-                    size: 16,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+
 }
 
 class _ProfileImageHeader extends StatefulWidget {

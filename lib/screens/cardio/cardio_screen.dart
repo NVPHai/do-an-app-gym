@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'cardio_detail_screen.dart';
+import '../../widgets/cardio_luxury_card.dart';
 
 class CardioScreen extends StatelessWidget {
   const CardioScreen({super.key});
@@ -180,7 +181,17 @@ class CardioScreen extends StatelessWidget {
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
                 final item = cardioWorkouts[index];
-                return _buildLuxuryCard(context, item);
+                return CardioLuxuryCard(
+                  item: item,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CardioDetailScreen(workout: item),
+                      ),
+                    );
+                  },
+                );
               }, childCount: cardioWorkouts.length),
             ),
           ),
@@ -189,122 +200,5 @@ class CardioScreen extends StatelessWidget {
     );
   }
 
-  ///  CARD 
-  Widget _buildLuxuryCard(BuildContext context, Map<String, dynamic> item) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => CardioDetailScreen(workout: item),
-          ),
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        height: 140,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.5),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Stack(
-            children: [
 
-              ///  BACKGROUND 
-              Positioned.fill(
-                child: Image.asset(
-                  item['media'],
-                  fit: BoxFit.cover,
-                ),
-              ),
-
-              ///  OVERLAY
-              Positioned.fill(
-                child: Container(
-                  color: Colors.black.withValues(alpha: 0.6),
-                ),
-              ),
-
-              ///  CONTENT
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-
-                    /// TITLE
-                    Text(
-                      item['title'],
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    const Spacer(),
-
-                    /// CHIPS
-                    Row(
-                      children: [
-                        _chip(item['time'], Icons.timer),
-                        const SizedBox(width: 8),
-                        _chip(item['kcal'], Icons.local_fire_department),
-                        const SizedBox(width: 8),
-                        _chip(item['level'], Icons.speed),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              /// PLAY ICON
-              const Positioned(
-                right: 15,
-                bottom: 15,
-                child: Icon(
-                  Icons.play_circle_fill,
-                  color: Color(0xFFD4AF37),
-                  size: 40,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  ///  CHIP
-  Widget _chip(String text, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white10),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 14, color: Colors.white70),
-          const SizedBox(width: 5),
-          Text(
-            text,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

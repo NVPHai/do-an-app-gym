@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'exercise_detail_screen.dart';
+import '../../widgets/gym_workout_card.dart';
 
 class WorkoutListScreen extends StatelessWidget {
   final String categoryName;
@@ -946,7 +947,22 @@ class WorkoutListScreen extends StatelessWidget {
                         ),
                       );
                     },
-                    child: _buildLuxuryCard(context, workout),
+                    child: GymWorkoutCard(
+                      workout: workout,
+                      categoryImageUrl: categoryImageUrl,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ExerciseDetailScreen(
+                              exerciseName: workout['title'],
+                              mediaPath: workout['media'],
+                              steps: List<String>.from(workout['steps']),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   );
                 },
                 childCount: workouts.length,
@@ -958,126 +974,5 @@ class WorkoutListScreen extends StatelessWidget {
     );
   }
 
-  ///  CARD 
-  Widget _buildLuxuryCard(
-    BuildContext context,
-    Map<String, dynamic> workout,
-  ) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ExerciseDetailScreen(
-              exerciseName: workout['title'],
-              mediaPath: workout['media'],
-              steps: List<String>.from(workout['steps']),
-            ),
-          ),
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
 
-            ///  MEDIA PREVIEW
-            ClipRRect(
-              borderRadius: BorderRadius.circular(22),
-              child: Stack(
-                children: [
-
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: Image.asset(
-                      categoryImageUrl, // dùng tạm ảnh category
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-
-                  ///  overlay
-                  Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.center,
-                          colors: [
-                            Colors.black.withValues(alpha: 0.7),
-                            Colors.transparent,
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  /// play button
-                  Positioned.fill(
-                    child: Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.5),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.play_arrow,
-                          color: Colors.white,
-                          size: 30,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            ///  TITLE
-            Text(
-              workout['title'],
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            ///  MUSCLE TAGS
-            Wrap(
-              spacing: 8,
-              runSpacing: 6,
-              children: (workout['muscles'] as List<String>)
-                  .map((m) => _luxChip(m))
-                  .toList(),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  ///  CHIP 
-  Widget _luxChip(String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white12),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: Colors.white70,
-          fontSize: 11,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    );
-  }
 }
