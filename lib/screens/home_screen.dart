@@ -18,6 +18,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
+  late Stream<UserModel?> _userStream;
 
   final List<Widget> _screens = [
     const GymScreen(),
@@ -26,12 +27,21 @@ class _MainScreenState extends State<MainScreen> {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
     final authService = AuthService();
     final firestoreService = FirestoreService();
     final currentUser = authService.currentUser;
+    if (currentUser != null) {
+      _userStream = firestoreService.getUserStream(currentUser.uid);
+    } else {
+      _userStream = const Stream.empty();
+    }
+  }
 
-    return Scaffold(
+  @override
+  Widget build(BuildContext context) {
+    return  Scaffold(
       backgroundColor: Colors.black,
 
       ///  BODY
@@ -59,7 +69,7 @@ class _MainScreenState extends State<MainScreen> {
 
                 ///  APPBAR
                 StreamBuilder<UserModel?>(
-                  stream: currentUser != null ? firestoreService.getUserStream(currentUser.uid) : const Stream.empty(),
+                  stream: _userStream,
                   builder: (context, snapshot) {
                     final user = snapshot.data;
                     String name = user?.name ?? 'Người dùng';
@@ -70,22 +80,7 @@ class _MainScreenState extends State<MainScreen> {
                       child: Row(
                         children: [
                           /// AVATAR
-                          FutureBuilder<String>(
-                            future: firestoreService.getLocalImagePath(user?.photoUrl ?? ''),
-                            builder: (context, avatarSnapshot) {
-                              String avatarPath = avatarSnapshot.data ?? '';
-                              return CircleAvatar(
-                                radius: 22,
-                                backgroundColor: Colors.white10,
-                                backgroundImage: avatarPath.isNotEmpty
-                                    ? FileImage(File(avatarPath))
-                                    : null,
-                                child: avatarPath.isEmpty
-                                    ? const Icon(Icons.person, color: Colors.white54, size: 20)
-                                    : null,
-                              );
-                            }
-                          ),
+                          _LocalAvatarWidget(photoUrl: user?.photoUrl ?? ''),
 
                           const SizedBox(width: 12),
 
@@ -203,6 +198,49 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _LocalAvatarWidget extends StatefulWidget {
+  final String photoUrl;
+  const _LocalAvatarWidget({required this.photoUrl});
+
+  @override
+  State<_LocalAvatarWidget> createState() => _LocalAvatarWidgetState();
+}
+
+class _LocalAvatarWidgetState extends State<_LocalAvatarWidget> {
+  late Future<String> _imagePathFuture;
+  final _firestoreService = FirestoreService();
+
+  @override
+  void initState() {
+    super.initState();
+    _imagePathFuture = _firestoreService.getLocalImagePath(widget.photoUrl);
+  }
+
+  @override
+  void didUpdateWidget(covariant _LocalAvatarWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.photoUrl != widget.photoUrl) {
+      _imagePathFuture = _firestoreService.getLocalImagePath(widget.photoUrl);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<String>(
+      future: _imagePathFuture,
+      builder: (context, avatarSnapshot) {
+        String avatarPath = avatarSnapshot.data ?? '';
+        return CircleAvatar(
+          radius: 22,
+          backgroundColor: Colors.white10,
+          backgroundImage: avatarPath.isNotEmpty ? FileImage(File(avatarPath)) : null,
+          child: avatarPath.isEmpty ? const Icon(Icons.person, color: Colors.white54, size: 20) : null,
+        );
+      },
     );
   }
 }
