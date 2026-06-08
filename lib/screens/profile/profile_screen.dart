@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'workout_schedule_screen.dart';
 import 'health_calculator_screen.dart';
 import 'reminder_screen.dart';
@@ -9,18 +10,37 @@ import '../../services/firestore_service.dart';
 import '../../models/user_model.dart';
 import 'edit_profile_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final authService = AuthService();
-    final firestoreService = FirestoreService();
-    final currentUser = authService.currentUser;
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
 
-    if (currentUser == null) {
-      return const Center(child: Text("Vui lòng đăng nhập lại", style: TextStyle(color: Colors.white)));
-    }
+class _ProfileScreenState extends State<ProfileScreen> {
+  late Stream<UserModel?> _userStream;
+  final authService = AuthService();
+  final firestoreService = FirestoreService();
+  late final User currentUser;
+
+@override
+void initState() {
+  super.initState();
+
+  final user = authService.currentUser;
+
+  if (user == null) {
+    _userStream = const Stream.empty();
+    return;
+  }
+
+  currentUser = user;
+  _userStream = firestoreService.getUserStream(user.uid);
+}
+
+  @override
+  Widget build(BuildContext context) {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -33,7 +53,7 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
         child: StreamBuilder<UserModel?>(
-          stream: firestoreService.getUserStream(currentUser.uid),
+          stream: _userStream,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator(color: Color(0xFFD4AF37)));
@@ -50,59 +70,7 @@ class ProfileScreen extends StatelessWidget {
               slivers: [
                 /// HEADER & PROFILE INFO
                 SliverToBoxAdapter(
-                  child: Stack(
-                    alignment: Alignment.bottomCenter,
-                    clipBehavior: Clip.none,
-                    children: [
-                      // Background Image
-                      FutureBuilder<String>(
-                        future: firestoreService.getLocalImagePath(user.backgroundUrl),
-                        builder: (context, bgSnapshot) {
-                          String bgPath = bgSnapshot.data ?? '';
-                          return Container(
-                            height: 200,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.white10,
-                              image: bgPath.isNotEmpty
-                                  ? DecorationImage(image: FileImage(File(bgPath)), fit: BoxFit.cover)
-                                  : null,
-                            ),
-                            child: bgPath.isEmpty
-                                ? const Center(child: Icon(Icons.image, color: Colors.white24, size: 50))
-                                : null,
-                          );
-                        }
-                      ),
-                      
-                      // Avatar
-                      Positioned(
-                        bottom: -50,
-                        child: FutureBuilder<String>(
-                          future: firestoreService.getLocalImagePath(user.photoUrl),
-                          builder: (context, avatarSnapshot) {
-                            String avatarPath = avatarSnapshot.data ?? '';
-                            return Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(color: const Color(0xFF0D1B2A), width: 4),
-                              ),
-                              child: CircleAvatar(
-                                radius: 50,
-                                backgroundColor: Colors.black,
-                                backgroundImage: avatarPath.isNotEmpty
-                                    ? FileImage(File(avatarPath))
-                                    : null,
-                                child: avatarPath.isEmpty
-                                    ? const Icon(Icons.person, color: Colors.white54, size: 40)
-                                    : null,
-                              ),
-                            );
-                          }
-                        ),
-                      ),
-                    ],
-                  ),
+                  child: _ProfileImageHeader(user: user),
                 ),
                 
                 SliverToBoxAdapter(
@@ -296,6 +264,95 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ProfileImageHeader extends StatefulWidget {
+  final UserModel user;
+  const _ProfileImageHeader({required this.user});
+
+  @override
+  State<_ProfileImageHeader> createState() => _ProfileImageHeaderState();
+}
+
+class _ProfileImageHeaderState extends State<_ProfileImageHeader> {
+  late Future<String> _bgPathFuture;
+  late Future<String> _avatarPathFuture;
+  final _firestoreService = FirestoreService();
+
+  @override
+  void initState() {
+    super.initState();
+    _bgPathFuture = _firestoreService.getLocalImagePath(widget.user.backgroundUrl);
+    _avatarPathFuture = _firestoreService.getLocalImagePath(widget.user.photoUrl);
+  }
+
+  @override
+  void didUpdateWidget(covariant _ProfileImageHeader oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.user.backgroundUrl != widget.user.backgroundUrl) {
+      _bgPathFuture = _firestoreService.getLocalImagePath(widget.user.backgroundUrl);
+    }
+    if (oldWidget.user.photoUrl != widget.user.photoUrl) {
+      _avatarPathFuture = _firestoreService.getLocalImagePath(widget.user.photoUrl);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      clipBehavior: Clip.none,
+      children: [
+        // Background Image
+        FutureBuilder<String>(
+          future: _bgPathFuture,
+          builder: (context, bgSnapshot) {
+            String bgPath = bgSnapshot.data ?? '';
+            return Container(
+              height: 200,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white10,
+                image: bgPath.isNotEmpty
+                    ? DecorationImage(image: FileImage(File(bgPath)), fit: BoxFit.cover)
+                    : null,
+              ),
+              child: bgPath.isEmpty
+                  ? const Center(child: Icon(Icons.image, color: Colors.white24, size: 50))
+                  : null,
+            );
+          }
+        ),
+        
+        // Avatar
+        Positioned(
+          bottom: -50,
+          child: FutureBuilder<String>(
+            future: _avatarPathFuture,
+            builder: (context, avatarSnapshot) {
+              String avatarPath = avatarSnapshot.data ?? '';
+              return Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFF0D1B2A), width: 4),
+                ),
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Colors.black,
+                  backgroundImage: avatarPath.isNotEmpty
+                      ? FileImage(File(avatarPath))
+                      : null,
+                  child: avatarPath.isEmpty
+                      ? const Icon(Icons.person, color: Colors.white54, size: 40)
+                      : null,
+                ),
+              );
+            }
+          ),
+        ),
+      ],
     );
   }
 }
