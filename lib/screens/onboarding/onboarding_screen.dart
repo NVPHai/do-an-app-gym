@@ -16,18 +16,18 @@
 
     final List<Map<String, String>> _data = [
       {
-        "title": "Train Anywhere",
-        "desc": "Workout anytime that fits your lifestyle.",
+        "title": "Tập luyện mọi lúc",
+        "desc": "Tập luyện bất cứ lúc nào phù hợp với lối sống của bạn.",
         "image": "assets/images/onboarding_1.png",
       },
       {
-        "title": "Perfect Technique",
-        "desc": "Programs built by top fitness experts.",
+        "title": "Làm chủ kĩ thuật",
+        "desc": "Chương trình được xây dựng bởi các chuyên gia hàng đầu.",
         "image": "assets/images/onboarding_2.png",
       },
       {
-        "title": "Stay Strong",
-        "desc": "Build energy and a powerful body.",
+        "title": "Sức mạnh và năng lượng",
+        "desc": "Xây dựng năng lượng và cơ thể mạnh mẽ.",
         "image": "assets/images/onboarding_3.png",
       },
     ];
