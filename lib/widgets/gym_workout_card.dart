@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'components/luxury_chip.dart';
+import 'core/luxury_chip.dart';
 
 class GymWorkoutCard extends StatelessWidget {
   final Map<String, dynamic> workout;

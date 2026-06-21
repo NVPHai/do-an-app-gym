@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
-import 'components/luxury_chip.dart';
+import 'theme/app_colors.dart';
+import 'core/luxury_chip.dart';
 
 class CardioLuxuryCard extends StatelessWidget {
   final Map<String, dynamic> item;
