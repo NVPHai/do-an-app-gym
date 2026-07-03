@@ -38,10 +38,12 @@ class FirestoreService {
     }
   }
 
-  // Update user data
+  // Update user data (Safe Merge)
   Future<void> updateUser(String uid, Map<String, dynamic> data) async {
     try {
-      await _firestore.collection('users').doc(uid).update(data);
+      // Dùng set với merge: true sẽ an toàn tuyệt đối. 
+      // Nếu doc chưa có, nó sẽ tạo mới. Nếu đã có, nó sẽ chỉ update các field trong data.
+      await _firestore.collection('users').doc(uid).set(data, SetOptions(merge: true));
     } catch (e) {
       throw Exception('Lỗi khi cập nhật dữ liệu: $e');
     }
