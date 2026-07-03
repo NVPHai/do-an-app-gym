@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:fitness_pro_max_luxury/screens/profile/notification_service.dart';
+import 'package:fitness_pro_max_luxury/services/notification_service.dart';
 
 class ReminderScreen extends StatefulWidget {
   const ReminderScreen({super.key});

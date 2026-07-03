@@ -37,23 +37,23 @@ class _CardioDetailScreenState extends State<CardioDetailScreen> {
     }
   }
 
-  void _startWorkout() {
-    setState(() => _countdown = 3);
+    void _startWorkout() {
+      setState(() => _countdown = 3);
 
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        if (_countdown > 1) {
-          _countdown--;
-        } else {
-          _countdown = 0;
-          _isStarted = true;
-          timer.cancel();
-          _startMainTimer();
-          _controller?.play();
-        }
+      Timer.periodic(const Duration(seconds: 1), (timer) {
+        setState(() {
+          if (_countdown > 1) {
+            _countdown--;
+          } else {
+            _countdown = 0;
+            _isStarted = true;
+            timer.cancel();
+            _startMainTimer();
+            _controller?.play();
+          }
+        });
       });
-    });
-  }
+    }
 
   void _startMainTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
